@@ -2,8 +2,8 @@
 <project version="2">
 	<pipeline>
 		<pass name="GBuffer" type="shader" active="true" patchverts="1">
-			<shader type="vs" path="shaders\deferred_GBufferVS.hlsl" entry="main" />
-			<shader type="ps" path="shaders\deferred_GBufferPS.hlsl" entry="main" />
+			<shader type="vs" path="shaders\ScreenSpaceAmbientOcclusion_GBufferVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\ScreenSpaceAmbientOcclusion_GBufferPS.hlsl" entry="main" />
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 				<item value="Normal" semantic="NORMAL" />
@@ -107,9 +107,32 @@
 			</variables>
 			<macros />
 		</pass>
+		<pass name="SSAO" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="shaders\SSAOVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\SSAOPS.hlsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+			</inputlayout>
+			<rendertexture name="ssaoRT" />
+			<items>
+				<item name="ScreenQuad" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues />
+			<variables>
+				<variable type="float4x4" name="matVP" system="ViewProjection" />
+				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
+			</variables>
+			<macros />
+		</pass>
 		<pass name="Processing" type="shader" active="true" patchverts="1">
-			<shader type="vs" path="shaders\deferred_ProcessingVS.hlsl" entry="main" />
-			<shader type="ps" path="shaders\deferred_ProcessingPS.hlsl" entry="main" />
+			<shader type="vs" path="shaders\ScreenSpaceAmbientOcclusion_ProcessingVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\ScreenSpaceAmbientOcclusion_ProcessingPS.hlsl" entry="main" />
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 				<item value="Normal" semantic="NORMAL" />
@@ -150,13 +173,14 @@
 		<object type="rendertexture" name="diffuseRT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="2" name="Processing" />
 		</object>
+		<object type="rendertexture" name="ssaoRT" rsize="1.000000,1.000000" clear="true" />
 		<object type="rendertexture" name="depthRT" format="R" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
 		<entry type="pinned" name="lightPos" owner="Processing" />
 		<entry type="camera" fp="false">
-			<distance>19</distance>
+			<distance>37</distance>
 			<pitch>8</pitch>
 			<yaw>103</yaw>
 			<roll>360</roll>
